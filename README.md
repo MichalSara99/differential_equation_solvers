@@ -1,4 +1,4 @@
-# Differential Equation Solver
+# Differential Equation Solvers
 While studying [Singular Perturbation Theory](https://www.amazon.com/Singular-Perturbation-Theory-Mathematical-Applications/dp/0387232001)
 and [Introduction to Perturbation Techniques](https://www.amazon.com/Introduction-Perturbation-Techniques-Ali-Nayfeh/dp/0471080330/ref=sr_1_9?qid=1568131377&refinements=p_27%3AAli+H.+Nayfeh&s=books&sr=1-9&text=Ali+H.+Nayfeh) 
 I needed some DE (Differential Equation) solvers to confirm that my solutions were 
