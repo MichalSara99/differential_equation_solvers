@@ -1,0 +1,14 @@
+Debug/
+.vs/
+differential_equation_solvers.sln
+differential_equation_solvers/differential_equation_solvers.vcxproj
+differential_equation_solvers/differential_equation_solvers.vcxproj.filters
+differential_equation_solvers/differential_equation_solvers.vcxproj.user
+differential_equation_solvers/main.cpp
+
+
+
+*.user
+*.filters
+*.vcxproj
+*.sln
