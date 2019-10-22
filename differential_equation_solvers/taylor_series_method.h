@@ -410,6 +410,7 @@ namespace taylor_series_method {
 		}
 	};
 
+	// ==================================== TS(2) =====================================
 
 	template<std::size_t EquationOrder,
 		std::size_t MethodOrder,
@@ -589,6 +590,205 @@ namespace taylor_series_method {
 				y1 = y1 + (h*y1_p) + (0.5*h*h*y1_pp);
 				y2 = y2 + (h*y2_p) + (0.5*h*h*y2_pp);
 				y3 = y3 + (h*y3_p) + (0.5*h*h*y3_pp);
+				curve1.push_back(y1);
+				curve2.push_back(y2);
+				curve3.push_back(y3);
+				t++;
+			}
+			return std::vector<std::vector<T>>{curve1, curve2, curve3};
+		}
+	};
+
+	// ================================== TS(3) ===================================
+
+	template<typename T>
+	class TaylorSeriesMethod<1, 3, T> :public TaylorSeriesMethodBuilder<1, 3, T,
+		IDerivatives<ScalarODEType<T, T>, ScalarODEType<T, T>, ScalarODEType<T, T>> > {
+	public:
+		explicit TaylorSeriesMethod(IDerivatives<IDerivatives<ScalarODEType<T, T>, ScalarODEType<T, T>, ScalarODEType<T, T>>> 
+			const &derivatives,Range<T> const &xrange, T initSolution, T stepSize, double decimals = 1.0e5)
+			:TaylorSeriesMethodBuilder<1, 3, T, IDerivatives<ScalarODEType<T, T>, ScalarODEType<T, T>, ScalarODEType<T, T>>>
+			(derivatives, xrange, initSolution, stepSize, decimals) {}
+
+		constexpr std::size_t methodOrder()const {
+			return std::tuple_size<std::decay<decltype(std::get<0>(this->derivatives_))>::type>::value;
+		}
+
+
+		std::vector<T> solutionCurve()const override {
+			std::vector<T> curve;
+			T a = this->xrange_.low();
+			T b = this->xrange_.high();
+			T x = a;
+			T y = this->initSolution_;
+			T h = this->stepSize_;
+
+			curve.push_back(y);
+			std::size_t t = 0;
+
+			auto f_xy = std::get<0>(std::get<0>(this->derivatives_));
+			auto f_xy_p = std::get<1>(std::get<0>(this->derivatives_));
+			auto f_xy_pp = std::get<2>(std::get<0>(this->derivatives_));
+
+			while ((a + t * h) < b) {
+				x = (a + t * h);
+				y = y + ((h*f_xy(x, y)) + (0.5*h*h*f_xy_p(x, y)) + 
+					((1.0 / 6.0)*h*h*h*f_xy_pp(x, y)));
+				curve.push_back(y);
+				t++;
+			}
+			return curve;
+		}
+	};
+
+	template<typename T>
+	class TaylorSeriesMethod<2, 3, T> :public TaylorSeriesMethodBuilder<2, 3, T,
+		IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>,
+		IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>> {
+	public:
+		explicit TaylorSeriesMethod(IDerivatives<IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>> const &derivatives,
+			Range<T> const &xrange, std::pair<T, T> const  &initSolution, T stepSize, double decimals = 1.0e5)
+			:TaylorSeriesMethodBuilder<2, 3, T, IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>>
+			(derivatives, xrange, initSolution, stepSize, decimals) {}
+
+		explicit TaylorSeriesMethod(IDerivatives<IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>> const &derivatives,
+			Range<T> const &xrange, T initSolution1, T initSolution2, T stepSize, double decimals = 1.0e5)
+			:TaylorSeriesMethodBuilder<2, 3, T, IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T>, ScalarODEType<T, T, T>, ScalarODEType<T, T, T>>>
+			(derivatives, xrange, initSolution1, initSolution2, stepSize, decimals) {}
+
+		constexpr std::size_t methodOrder()const {
+			return std::tuple_size<std::decay<decltype(std::get<0>(this->derivatives_))>::type>::value;
+		}
+
+
+		std::vector<std::vector<T>> solutionCurve()const override {
+			std::vector<T> curve1;
+			std::vector<T> curve2;
+			T a = this->xrange_.low();
+			T b = this->xrange_.high();
+			T x = a;
+			T y1 = this->initSolution_.first;
+			T y2 = this->initSolution_.second;
+			T h = this->stepSize_;
+
+			curve1.push_back(y1);
+			curve2.push_back(y2);
+			std::size_t t = 0;
+
+			auto f1_xy = std::get<0>(std::get<0>(this->derivatives_));
+			auto f1_xy_p = std::get<0>(std::get<1>(this->derivatives_));
+			auto f1_xy_ppp = std::get<0>(std::get<2>(this->derivatives_));
+			auto f2_xy = std::get<1>(std::get<0>(this->derivatives_));
+			auto f2_xy_p = std::get<1>(std::get<1>(this->derivatives_));
+			auto f2_xy_pp = std::get<1>(std::get<2>(this->derivatives_));
+
+			T y1_p = T{};
+			T y1_pp = T{};
+			T y1_ppp = T{};
+			T y2_p = T{};
+			T y2_pp = T{};
+			T y2_ppp = T{};
+			while ((a + t * h) < b) {
+				x = (a + t * h);
+				y1_p = f1_xy(x, y1, y2);
+				y1_pp = f1_xy_p(x, y1, y2);
+				y1_ppp = f1_xy_pp(x, y1, y2);
+				y2_p = f2_xy(x, y1, y2);
+				y2_pp = f2_xy_p(x, y1, y2);
+				y2_ppp = f2_xy_pp(x, y1, y2);
+				y1 = y1 + (h*y1_p) + (0.5*h*h*y1_pp) + ((1.0 / 6.0)*h*h*h*y1_ppp);
+				y2 = y2 + (h*y2_p) + (0.5*h*h*y2_pp) + ((1.0 / 6.0)*h*h*h*y2_ppp);
+				curve1.push_back(y1);
+				curve2.push_back(y2);
+				t++;
+			}
+			return std::vector<std::vector<T>>{curve1, curve2};
+		}
+	};
+
+	template<typename T>
+	class TaylorSeriesMethod<3, 3, T> :public TaylorSeriesMethodBuilder<3, 3, T,
+		IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+		IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+		IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>> {
+	public:
+		explicit TaylorSeriesMethod(IDerivatives<IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>> const &derivatives,
+			Range<T> const &xrange, std::tuple<T, T, T> const  &initSolution, T stepSize, double decimals = 1.0e5)
+			:TaylorSeriesMethodBuilder<3, 3, T, IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>>
+			(derivatives, xrange, initSolution, stepSize, decimals) {}
+
+		explicit TaylorSeriesMethod(IDerivatives<IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>> const &derivatives,
+			Range<T> const &xrange, T initSolution1, T initSolution2, T initSolution3, T stepSize, double decimals = 1.0e5)
+			:TaylorSeriesMethodBuilder<3, 3, T, IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>,
+			IDerivatives<ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>, ScalarODEType<T, T, T, T>>>
+			(derivatives, xrange, initSolution1, initSolution2, initSolution2, initSolution3, stepSize, decimals) {}
+
+		constexpr std::size_t methodOrder()const {
+			return std::tuple_size<std::decay<decltype(std::get<0>(this->derivatives_))>::type>::value;
+		}
+
+
+		std::vector<std::vector<T>> solutionCurve()const override {
+			std::vector<T> curve1;
+			std::vector<T> curve2;
+			std::vector<T> curve3;
+			T a = this->xrange_.low();
+			T b = this->xrange_.high();
+			T x = a;
+			T y1 = std::get<0>(this->initSolution_);
+			T y2 = std::get<1>(this->initSolution_);
+			T y3 = std::get<2>(this->initSolution_);
+			T h = this->stepSize_;
+
+			curve1.push_back(y1);
+			curve2.push_back(y2);
+			curve3.push_back(y3);
+			std::size_t t = 0;
+
+			auto f1_xy = std::get<0>(std::get<0>(this->derivatives_));
+			auto f1_xy_p = std::get<0>(std::get<1>(this->derivatives_));
+			auto f1_xy_pp = std::get<0>(std::get<2>(this->derivatives_));
+			auto f2_xy = std::get<1>(std::get<0>(this->derivatives_));
+			auto f2_xy_p = std::get<1>(std::get<1>(this->derivatives_));
+			auto f2_xy_pp = std::get<1>(std::get<2>(this->derivatives_));
+			auto f3_xy = std::get<2>(std::get<0>(this->derivatives_));
+			auto f3_xy_p = std::get<2>(std::get<1>(this->derivatives_));
+			auto f3_xy_pp = std::get<2>(std::get<2>(this->derivatives_));
+
+			T y1_p = T{};
+			T y1_pp = T{};
+			T y1_ppp = T{};
+			T y2_p = T{};
+			T y2_pp = T{};
+			T y2_ppp = T{};
+			T y3_p = T{};
+			T y3_pp = T{};
+			T y3_ppp = T{};
+			while ((a + t * h) < b) {
+				x = (a + t * h);
+				y1_p = f1_xy(x, y1, y2, y3);
+				y1_pp = f1_xy_p(x, y1, y2, y3);
+				y1_ppp = f1_xy_pp(x, y1, y2, y3);
+				y2_p = f2_xy(x, y1, y2, y3);
+				y2_pp = f2_xy_p(x, y1, y2, y3);
+				y2_ppp = f2_xy_pp(x, y1, y2, y3);
+				y3_p = f3_xy(x, y1, y2, y3);
+				y3_pp = f3_xy_p(x, y1, y2, y3);
+				y3_ppp = f3_xy_pp(x, y1, y2, y3);
+				y1 = y1 + (h*y1_p) + (0.5*h*h*y1_pp) + ((1.0 / 6.0)*h*h*h*y1_ppp);
+				y2 = y2 + (h*y2_p) + (0.5*h*h*y2_pp) + ((1.0 / 6.0)*h*h*h*y2_ppp);
+				y3 = y3 + (h*y3_p) + (0.5*h*h*y3_pp) + ((1.0 / 6.0)*h*h*h*y3_ppp);
 				curve1.push_back(y1);
 				curve2.push_back(y2);
 				curve3.push_back(y3);

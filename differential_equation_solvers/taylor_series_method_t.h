@@ -10,7 +10,7 @@ using namespace taylor_series_method;
 
 void simple_ode_first_order_ts_2() {
 
-	std::cout << "TS(2) method: \n";
+	std::cout << "\n\n TS(2) method: \n";
 	// numerical solution of
 	// first-order differential equation
 	//
@@ -71,7 +71,7 @@ void simple_ode_first_order_ts_2() {
 
 
 void simple_ode_second_order_ts_2() {
-	std::cout << "TS(2) method: \n";
+	std::cout << "\n\nTS(2) method: \n";
 	// numerical solution of
 	// second-order differential equation
 	//
