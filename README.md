@@ -12,8 +12,9 @@ As you can see it is not at all complete.I will keep coding more.
 * solver for system of two and three first-order differential equations
 * few examples in header file euler_method_t.h
 
-### Taylor Method
-* WIP
+### Taylor Series Method
+* first, second and third-order differential equation solver for Taylor series of second order (TS(2))
+* WIP on TS(3)
 
 
 
