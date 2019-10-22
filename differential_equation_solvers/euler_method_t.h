@@ -10,6 +10,7 @@ using namespace euler_method;
 
 
 void simple_ode_first_order() {
+	std::cout << "Euler Method: \n";
 	// numerical solution of
 	// first-order differential equation
 	//

@@ -126,6 +126,8 @@
     <ClInclude Include="des_utilities.h" />
     <ClInclude Include="euler_method.h" />
     <ClInclude Include="euler_method_t.h" />
+    <ClInclude Include="taylor_series_method.h" />
+    <ClInclude Include="taylor_series_method_t.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

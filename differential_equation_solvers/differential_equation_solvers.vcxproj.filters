@@ -35,5 +35,11 @@
     <ClInclude Include="euler_method_t.h">
       <Filter>Header Files\unit_tests</Filter>
     </ClInclude>
+    <ClInclude Include="taylor_series_method.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="taylor_series_method_t.h">
+      <Filter>Header Files\unit_tests</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
