@@ -7,6 +7,9 @@
 
 namespace des_utilities {
 
+// First 50 digits (see wikipedia)
+#define PI 3.14159265358979323846264338327950288419716939937510
+
 	template<typename T = double,
 			typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
 	class Range {

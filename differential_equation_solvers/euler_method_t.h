@@ -14,7 +14,7 @@ void simple_ode_first_order() {
 	// numerical solution of
 	// first-order differential equation
 	//
-	// x'(t) = 2.0*x(t)*(1.0 - x(t)), t\in <10,11>
+	// x'(t) = 2.0*x(t)*(1.0 - x(t)), t\in <10,12>
 	// x(10) = 0.2
 	// 
 	// The exact solution is:
@@ -23,7 +23,7 @@ void simple_ode_first_order() {
 
 	double x0{ 0.2 };
 	double h{ 0.2 };
-	Range<> range{ 10.0,11.0 };
+	Range<> range{ 10.0,12.0 };
 
 	// Exact solution:
 	auto x_exact = [](double t){
@@ -38,7 +38,12 @@ void simple_ode_first_order() {
 	IDerivatives<decltype(derivative)> holder = std::make_tuple(derivative);
 	EulerMethod<1> em{ holder,range,x0,h };
 	std::cout << "Order of ODE: " << em.equationOrder() << "\n";
-	std::cout << "Numerical solution: \n";
+	std::cout << "Time resolution:\n";
+	auto t_points = em.resolution();
+	for (auto const &t : t_points) {
+		std::cout << t << ", ";
+	}
+	std::cout << "\nNumerical solution: \n";
 	try {
 		auto curve = em.solutionCurve();
 		for (auto const &v : curve) {
@@ -49,14 +54,12 @@ void simple_ode_first_order() {
 		std::cerr << e.what() << "\n";
 	}
 
-	// get independent variable resolution:
-	auto t_points = em.resolution();
 	std::cout << "\nExact solution:\n";
 	for (auto const &t : t_points) {
 		std::cout << x_exact(t) << ", ";
 	}
 	std::cout << "\n";
-	std::cout << "solution at x(10.2): " << em.solutionAt(10.2) << "\n";
+	std::cout << "solution at x(11.0): " << em.solutionAt(11.0) << "\n";
 }
 
 void simple_ode_first_order2() {
@@ -180,6 +183,76 @@ void simple_ode_second_order() {
 	std::cout << "Numerical solution at x(0.8) = " << em.solutionAt<0>(0.8) << "\n";
 	std::cout << "Numerical solution at x(1.5) = " << em.solutionAt<0>(1.5) << "\n";
 	std::cout << "Numerical solution at x(1.7) = " << em.solutionAt<0>(1.7) << "\n";
+}
+
+void another_ode_second_order() {
+	std::cout << "\n\nEuler Method: \n";
+	// numerical solution of
+	// second-order differential equation
+	//
+	// x''(t) + x(t) = 0, t\in <0,2>
+	// x(0) = pi/10, x'(0) = 0
+	//
+	// Setting u = x and v = x' we have
+	// v' = u'' = x'' = t - u and
+	// u' = v. Therefore this gives
+	//
+	// u'(t) =           v(t),
+	// v'(t) =  u(t),
+	// u(0) = pi/10, v(0) = 0
+	//
+	// Notice that the solution to the original
+	// problem is found by extracting the solution curve
+	// from u(t), since we put u(t) = x(t) in the previous
+	// transformation
+	//
+	// The exact solution is:
+	//
+	// x(t) = (pi/10)*cos(t)
+	//
+
+	double t{ 0.0 };
+	double u{ PI / 10.0 };
+	double v{ 0.0 };
+	double h{ 0.1 };
+	Range<> range{ 0.0,2.0 };
+
+	// Exact solution:
+	auto x_exact = [](double t) {
+		return ((PI / 10.0)*  std::cos(t));
+	};
+
+	// Construct the slopes on the right-hand side:
+	auto u_prime = [](double t, double u, double v) {return v; };
+	auto v_prime = [](double t, double u, double v) {return (-1.0*u); };
+
+
+	// Wrap it up into IDerivatives:
+	auto odeSystem = std::make_tuple(u_prime, v_prime);
+
+	// Create instance of EulerMethod<2>
+	EulerMethod<2> em{ odeSystem,range,std::make_pair(u,v),h };
+	std::cout << "Order of ODE: " << em.equationOrder() << "\n";
+	std::cout << "Time resolution:\n";
+	auto t_points = em.resolution();
+	for (auto const &t : t_points) {
+		std::cout << t << ", ";
+	}
+	std::cout << "\nNumerical solution: \n";
+	try {
+		auto curves = em.solutionCurve();
+		for (auto const &v : curves[0]) {
+			std::cout << v << ", ";
+		}
+	}
+	catch (std::exception &e) {
+		std::cerr << e.what() << "\n";
+	}
+	std::cout << "\nExact solution:\n";
+	for (auto const &t : t_points) {
+		std::cout << x_exact(t) << ", ";
+	}
+	std::cout << "\n\nNumerical solution at x(0.2) = " << em.solutionAt<0>(0.2) << "\n";
 }
 
 void second_order_ode() {
